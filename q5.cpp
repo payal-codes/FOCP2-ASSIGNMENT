@@ -1,102 +1,72 @@
-#include <iostream>
-#include <map>
-#include <set>
+#include <bits/stdc++.h>
 using namespace std;
 
 class MovieTicket {
-
-    map<int, set<int> > booked;
-    map<int, int> countTickets;
+private:
+    // movie_id -> number of booked tickets
+    unordered_map<int, int> bookedCount;
+    // (customer_id, movie_id) -> booked status
+    set<pair<int,int>> bookings;
+    const int MAX_SLOTS = 100;
 
 public:
-
-    bool BOOK(int x, int y) {
-
-        if (booked[y].count(x) || countTickets[y] == 100)
-            return false;
-
-        booked[y].insert(x);
-        countTickets[y]++;
-
+    bool book(int customerId, int movieId) {
+        if (bookings.count({customerId, movieId})) return false;
+        if (bookedCount[movieId] >= MAX_SLOTS) return false;
+        bookings.insert({customerId, movieId});
+        bookedCount[movieId]++;
         return true;
     }
 
-    bool CANCEL(int x, int y) {
-
-        if (booked[y].count(x) == 0)
-            return false;
-
-        booked[y].erase(x);
-        countTickets[y]--;
-
+    bool cancel(int customerId, int movieId) {
+        if (!bookings.count({customerId, movieId})) return false;
+        bookings.erase({customerId, movieId});
+        bookedCount[movieId]--;
         return true;
     }
 
-    bool IS_BOOKED(int x, int y) {
-
-        if (booked[y].count(x))
-            return true;
-
-        return false;
+    bool isBooked(int customerId, int movieId) {
+        return bookings.count({customerId, movieId}) > 0;
     }
 
-    int AVAILABLE_TICKETS(int y) {
-
-        return 100 - countTickets[y];
+    int availableTickets(int movieId) {
+        return MAX_SLOTS - bookedCount[movieId];
     }
 };
 
 int main() {
+    ios_base::sync_with_stdio(false);
+    cin.tie(NULL);
 
-    int Q;
-    cin >> Q;
+    int q;
+    cin >> q;
 
-    MovieTicket m;
+    MovieTicket mt;
 
-    while (Q--) {
-
+    while (q--) {
         string query;
         cin >> query;
 
         if (query == "BOOK") {
-
+            
             int x, y;
             cin >> x >> y;
-
-            if (m.BOOK(x, y))
-                cout << "true" << endl;
-            else
-                cout << "false" << endl;
-        }
-
-        else if (query == "CANCEL") {
-
+            cout << (mt.book(x, y) ? "true" : "false") << "\n";
+        } else if (query == "CANCEL") {
+              
             int x, y;
             cin >> x >> y;
-
-            if (m.CANCEL(x, y))
-                cout << "true" << endl;
-            else
-                cout << "false" << endl;
-        }
-
-        else if (query == "IS_BOOKED") {
-
+            cout << (mt.cancel(x, y) ? "true" : "false") << "\n";
+        } else if (query == "IS_BOOKED") {
+           
             int x, y;
             cin >> x >> y;
-
-            if (m.IS_BOOKED(x, y))
-                cout << "true" << endl;
-            else
-                cout << "false" << endl;
-        }
-
-        else if (query == "AVAILABLE_TICKETS") {
-
+            cout << (mt.isBooked(x, y) ? "true" : "false") << "\n";
+        } else if (query == "AVAILABLE_TICKETS") {
+           
             int y;
             cin >> y;
-
-            cout << m.AVAILABLE_TICKETS(y) << endl;
+            cout << mt.availableTickets(y) << "\n";
         }
     }
 
